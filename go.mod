@@ -1,4 +1,4 @@
-module github.com/hybridgroup/video-description
+module github.com/hybridgroup/vlm-caption
 
 go 1.25.0
 
