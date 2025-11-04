@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MJPEG Stream Viewer</title>
+    <title>yzma Stream Viewer</title>
     <style>
         body {
             display: flex;
@@ -14,7 +14,7 @@
         .image-container {
             width: 100vw;
             max-width: 100vw;
-            max-height: 80vh;
+            max-height: 60vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -23,16 +23,50 @@
             border: 2px solid #333;
             width: 100%;
             height: auto;
-            max-height: 80vh;
+            max-height: 60vh;
             object-fit: contain;
             display: block;
+        }
+        #caption {
+            margin-top: 32px;
+            font-size: 2em;
+            color: #222;
+            background: #f8f8f8;
+            padding: 32px 48px;
+            border-radius: 12px;
+            min-height: 6em;
+            max-width: 90vw;
+            width: 90vw;
+            text-align: center;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
 <body>
-    <h1>Live MJPEG Stream</h1>
+    <h1>yzma Stream Viewer</h1>
     <div class="image-container">
         <img src="http://localhost:8080/video" alt="MJPEG Stream">
     </div>
+    <div id="caption">Loading caption...</div>
+    <script>
+        async function fetchCaption() {
+            try {
+                const response = await fetch('http://localhost:8080/caption');
+                if (response.ok) {
+                    const text = await response.text();
+                    document.getElementById('caption').textContent = text;
+                } else {
+                    document.getElementById('caption').textContent = "Error loading caption";
+                }
+            } catch (e) {
+                document.getElementById('caption').textContent = "Error loading caption";
+            }
+        }
+        setInterval(fetchCaption, 1000);
+        fetchCaption();
+    </script>
 </body>
 </html>

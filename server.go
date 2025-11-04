@@ -20,6 +20,10 @@ func startServer(host string, stream *mjpeg.Stream) {
 		w.Write([]byte(index))
 	})
 	mux.Handle("/video", stream)
+	mux.HandleFunc("/caption", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.Write([]byte(caption))
+	})
 
 	server := &http.Server{
 		Addr:         host,

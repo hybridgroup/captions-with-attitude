@@ -1,5 +1,9 @@
 # video-description
 
+![video description](./images/video-description.png)
+
+Uses yzma and GoCV to create a web server that shows live captions from your local webcam.
+
 ## Running
 
 ```shell
