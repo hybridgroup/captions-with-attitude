@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MJPEG Stream Viewer</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 40px;
+            font-family: Arial, sans-serif;
+        }
+        .image-container {
+            width: 100vw;
+            max-width: 100vw;
+            max-height: 80vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        img {
+            border: 2px solid #333;
+            width: 100%;
+            height: auto;
+            max-height: 80vh;
+            object-fit: contain;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Live MJPEG Stream</h1>
+    <div class="image-container">
+        <img src="http://localhost:8080/video" alt="MJPEG Stream">
+    </div>
+</body>
+</html>
