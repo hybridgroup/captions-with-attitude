@@ -20,58 +20,29 @@ import (
 	"os"
 
 	"github.com/hybridgroup/mjpeg"
-	"gocv.io/x/gocv"
-)
-
-var (
-	img gocv.Mat
 )
 
 func main() {
-	if len(os.Args) < 3 {
-		fmt.Println("How to run:\n\tmjpeg-streamer [camera ID] [host:port]")
+	if len(os.Args) < 6 {
+		fmt.Println("How to run:\n\tvideo-description [camera ID] [host:port] [model path] [projector path] [prompt text]")
 		return
 	}
 
 	// parse args
 	deviceID := os.Args[1]
 	host := os.Args[2]
+	modelPath := os.Args[3]
+	projectorPath := os.Args[4]
+	promptText := os.Args[5]
 
 	// create the mjpeg stream
 	stream := mjpeg.NewStream()
 
-	// start capturing
 	go startCapture(deviceID, stream)
+	go startVLM(modelPath, projectorPath, promptText)
 
 	fmt.Println("Capturing. Point your browser to " + host)
 
 	// start http server
 	startServer(host, stream)
-}
-
-func startCapture(deviceID string, stream *mjpeg.Stream) {
-	// open webcam
-	webcam, err := gocv.OpenVideoCapture(deviceID)
-	if err != nil {
-		fmt.Printf("Error opening capture device: %v\n", deviceID)
-		return
-	}
-	defer webcam.Close()
-
-	img = gocv.NewMat()
-	defer img.Close()
-
-	for {
-		if ok := webcam.Read(&img); !ok {
-			fmt.Printf("Device closed: %v\n", deviceID)
-			return
-		}
-		if img.Empty() {
-			continue
-		}
-
-		buf, _ := gocv.IMEncode(".jpg", img)
-		stream.UpdateJPEG(buf.GetBytes())
-		buf.Close()
-	}
 }
