@@ -3,54 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <title>vlm-caption</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 40px;
-            font-family: Arial, sans-serif;
-        }
-        .image-container {
-            width: 100vw;
-            max-width: 100vw;
-            max-height: 60vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        img {
-            border: 2px solid #333;
-            width: 100%;
-            height: auto;
-            max-height: 60vh;
-            object-fit: contain;
-            display: block;
-        }
-        #caption {
-            margin-top: 32px;
-            font-size: 2em;
-            color: #222;
-            background: #f8f8f8;
-            padding: 32px 48px;
-            border-radius: 12px;
-            min-height: 6em;
-            max-width: 90vw;
-            width: 90vw;
-            text-align: center;
-            box-shadow: 0 2px 16px rgba(0,0,0,0.10);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
+<style>
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 40px;
+        font-family: Arial, sans-serif;
+    }
+    .image-container {
+        width: 100vw;
+        max-width: 100vw;
+        max-height: 60vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .caption-tone-row {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+        width: 90vw;
+        max-width: 1200px;
+        margin-top: 32px;
+        margin-bottom: 32px;
+        gap: 32px;
+    }
+    #caption {
+        font-size: 2em;
+        color: #222;
+        background: #f8f8f8;
+        padding: 32px 48px;
+        border-radius: 12px;
+        min-height: 6em;
+        flex: 1 1 0;
+        text-align: center;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        max-width: 75%;
+    }
+    #tone-form {
+        flex: 0 0 25%;
+        max-width: 320px;
+        min-width: 200px;
+        background: #f3f3f3;
+        border-radius: 12px;
+        padding: 24px 18px 18px 18px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        height: fit-content;
+    }
+</style>
 </head>
 <body>
-    <h1>vlm-caption</h1>
+    <h1 style="margin-top: 0; margin-bottom: 12px; font-size: 2em; line-height: 1.1;">Opinionated VLM Captioning</h1>
     <div class="image-container">
         <img src="http://localhost:8080/video" alt="MJPEG Stream">
     </div>
-    <div id="caption">Loading caption...</div>
+    <div class="caption-tone-row">
+        <div id="caption">Loading caption...</div>
+        <form id="tone-form">
+            <fieldset style="border: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+                <legend style="font-size: 1em; font-weight: bold; margin-bottom: 8px;">Tone</legend>
+                <label style="font-size: 0.97em; display: flex; align-items: center;">
+                    <input type="radio" name="tone" value="flattering" style="transform: scale(1.15); margin-right: 8px;">
+                    Flattering
+                </label>
+                <label style="font-size: 0.97em; display: flex; align-items: center;">
+                    <input type="radio" name="tone" value="neutral" checked style="transform: scale(1.15); margin-right: 8px;">
+                    Neutral
+                </label>
+                <label style="font-size: 0.97em; display: flex; align-items: center;">
+                    <input type="radio" name="tone" value="insulting" style="transform: scale(1.15); margin-right: 8px;">
+                    Insulting
+                </label>
+            </fieldset>
+            <fieldset style="border: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+                <legend style="font-size: 1em; font-weight: bold; margin-bottom: 8px;">Humor</legend>
+                <label style="font-size: 0.97em; display: flex; align-items: center;">
+                    <input type="radio" name="humor" value="funny" style="transform: scale(1.15); margin-right: 8px;">
+                    Funny
+                </label>
+                <label style="font-size: 0.97em; display: flex; align-items: center;">
+                    <input type="radio" name="humor" value="neutral" checked style="transform: scale(1.15); margin-right: 8px;">
+                    Neutral
+                </label>
+                <label style="font-size: 0.97em; display: flex; align-items: center;">
+                    <input type="radio" name="humor" value="serious" style="transform: scale(1.15); margin-right: 8px;">
+                    Serious
+                </label>
+            </fieldset>
+        </form>
+    </div>
     <script>
         async function fetchCaption() {
             try {
@@ -67,6 +117,22 @@
         }
         setInterval(fetchCaption, 1000);
         fetchCaption();
+        
+        document.getElementById('tone-form').addEventListener('change', async function(e) {
+            if (e.target.name === 'tone') {
+                await fetch('http://localhost:8080/tone', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tone: e.target.value })
+                });
+            } else if (e.target.name === 'humor') {
+                await fetch('http://localhost:8080/humor', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ humor: e.target.value })
+                });
+            }
+        });
     </script>
 </body>
 </html>

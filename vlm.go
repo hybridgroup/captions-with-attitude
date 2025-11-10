@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 	"unsafe"
 
 	"github.com/hybridgroup/yzma/pkg/llama"
@@ -12,7 +13,11 @@ import (
 
 var libPath = os.Getenv("YZMA_LIB")
 
-var caption string
+var (
+	caption string
+	tone    string
+	humor   string
+)
 
 func startVLM(modelFile, projectorFile, prompt string) {
 	if err := llama.Load(libPath); err != nil {
@@ -36,16 +41,19 @@ func startVLM(modelFile, projectorFile, prompt string) {
 	}
 	defer vlm.Close()
 
-	newPrompt := prompt + mtmd.DefaultMarker()
-
 	for {
-		caption = nextCaption(vlm, newPrompt)
+		caption = nextCaption(vlm, prompt)
 		fmt.Println("Caption:", caption)
+
+		time.Sleep(10 * time.Second)
 	}
 }
 
 func nextCaption(vlm *VLM, prompt string) string {
-	messages := []llama.ChatMessage{llama.NewChatMessage("user", prompt)}
+	newPrompt := prompt + promptStyle() + mtmd.DefaultMarker()
+	fmt.Println(newPrompt)
+
+	messages := []llama.ChatMessage{llama.NewChatMessage("user", newPrompt)}
 	input := mtmd.NewInputText(vlm.ChatTemplate(messages, true), true, true)
 
 	bitmap, err := matToBitmap(img)
@@ -70,6 +78,23 @@ func nextCaption(vlm *VLM, prompt string) string {
 	}
 
 	return results
+}
+
+const keepShort = " Keep the response short and concise."
+
+func promptStyle() string {
+	switch {
+	case tone == "" && humor == "":
+		return keepShort
+	case tone != "" && humor != "":
+		return " Be both " + tone + " and " + humor + " in your response." + keepShort
+	case tone == "" && humor != "":
+		return " Be somewhat " + humor + " in your response." + keepShort
+	case tone != "" && humor == "":
+		return " Be somewhat " + tone + " in your response." + keepShort
+	}
+
+	return keepShort
 }
 
 // VLM is a Vision Language Model (VLM).
@@ -142,7 +167,7 @@ func (m *VLM) Tokenize(input *mtmd.InputText, bitmap mtmd.Bitmap, output mtmd.In
 
 func (m *VLM) Results(output mtmd.InputChunks) (string, error) {
 	var n llama.Pos
-	nBatch := 2048 // default value?
+	nBatch := llama.NBatch(m.ModelContext)
 
 	if res := mtmd.HelperEvalChunks(m.ProjectorContext, m.ModelContext, output, 1, 0, int32(nBatch), true, &n); res != 0 {
 		return "", errors.New("unable to evaluate chunks")
@@ -150,6 +175,8 @@ func (m *VLM) Results(output mtmd.InputChunks) (string, error) {
 
 	var sz int32 = 1
 	batch := llama.BatchInit(1, 0, 1)
+	defer llama.BatchFree(batch)
+
 	batch.NSeqId = &sz
 	batch.NTokens = 1
 	seqs := unsafe.SliceData([]llama.SeqId{0})
@@ -158,7 +185,7 @@ func (m *VLM) Results(output mtmd.InputChunks) (string, error) {
 	vocab := llama.ModelGetVocab(m.TextModel)
 	results := ""
 
-	for i := 0; i < nBatch; i++ {
+	for i := 0; i < int(nBatch); i++ {
 		token := llama.SamplerSample(m.Sampler, m.ModelContext, -1)
 
 		if llama.VocabIsEOG(vocab, token) {
@@ -181,7 +208,7 @@ func (m *VLM) Results(output mtmd.InputChunks) (string, error) {
 	return results, nil
 }
 
-// Clear clears the context memory, except for the BOS.
+// Clear clears the context memory.
 func (m *VLM) Clear() {
-	llama.MemorySeqRm(llama.GetMemory(m.ModelContext), 0, 1, -1)
+	llama.MemoryClear(llama.GetMemory(m.ModelContext), true)
 }
