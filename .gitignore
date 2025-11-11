@@ -1,0 +1,12 @@
+# Binaries
+captions-with-attitude.exe
+captions-with-attitude
+# IDE files
+.vscode/
+.idea/
+*.iml
+# OS files
+.DS_Store
+Thumbs.db
+# Go files
+bin/
