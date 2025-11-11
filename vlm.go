@@ -29,7 +29,9 @@ func startVLM(modelFile, projectorFile, prompt string) {
 		os.Exit(1)
 	}
 
-	llama.LogSet(llama.LogSilent())
+	if !*verbose {
+		llama.LogSet(llama.LogSilent())
+	}
 
 	llama.Init()
 	defer llama.BackendFree()
@@ -144,7 +146,9 @@ func (m *VLM) Init() error {
 	m.Sampler = llama.NewSampler(m.TextModel, llama.DefaultSamplers)
 
 	mtmdCtxParams := mtmd.ContextParamsDefault()
-	mtmdCtxParams.Verbosity = llama.LogLevelContinue
+	if !*verbose {
+		mtmdCtxParams.Verbosity = llama.LogLevelContinue
+	}
 	m.ProjectorContext = mtmd.InitFromFile(m.ProjectorModelFilename, m.TextModel, mtmdCtxParams)
 
 	return nil

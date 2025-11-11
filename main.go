@@ -8,24 +8,17 @@ import (
 )
 
 func main() {
-	if len(os.Args) < 6 {
-		fmt.Println("How to run:\n\tvideo-description [camera ID] [host:port] [model path] [projector path] [prompt text]")
-		return
+	if err := handleFlags(); err != nil {
+		showUsage()
+		os.Exit(0)
 	}
-
-	// parse args
-	deviceID := os.Args[1]
-	host := os.Args[2]
-	modelPath := os.Args[3]
-	projectorPath := os.Args[4]
-	promptText := os.Args[5]
 
 	stream := mjpeg.NewStream()
 
-	go startVideoCapture(deviceID, stream)
-	go startVLM(modelPath, projectorPath, promptText)
+	go startVideoCapture(*deviceID, stream)
+	go startVLM(*modelPath, *projectorPath, *promptText)
 
 	fmt.Println("Capturing. Point your browser to", host)
 
-	startWebServer(host, stream, promptText)
+	startWebServer(*host, stream, *promptText)
 }
