@@ -9,8 +9,6 @@ import (
 	"github.com/hybridgroup/yzma/pkg/mtmd"
 )
 
-var libPath = os.Getenv("YZMA_LIB")
-
 var (
 	caption string
 	tone    string
@@ -21,17 +19,18 @@ var (
 // It initializes the VLM and continuously generates captions
 // based on the current video frame.
 func startCaptions(modelFile, projectorFile, prompt string) {
-	if err := llama.Load(libPath); err != nil {
+	if err := llama.Load(*libPath); err != nil {
 		fmt.Println("unable to load library", err.Error())
 		os.Exit(1)
 	}
-	if err := mtmd.Load(libPath); err != nil {
+	if err := mtmd.Load(*libPath); err != nil {
 		fmt.Println("unable to load library", err.Error())
 		os.Exit(1)
 	}
 
 	if !*verbose {
 		llama.LogSet(llama.LogSilent())
+		mtmd.LogSet(llama.LogSilent())
 	}
 
 	llama.Init()

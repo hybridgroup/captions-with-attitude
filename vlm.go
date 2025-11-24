@@ -44,23 +44,30 @@ func (m *VLM) Close() {
 
 // Init initializes the VLM.
 func (m *VLM) Init() error {
-	m.TextModel = llama.ModelLoadFromFile(m.TextModelFilename, llama.ModelDefaultParams())
+	var err error
+	m.TextModel, err = llama.ModelLoadFromFile(m.TextModelFilename, llama.ModelDefaultParams())
+	if err != nil {
+		return fmt.Errorf("unable to load text model: %w", err)
+	}
 
 	ctxParams := llama.ContextDefaultParams()
 	ctxParams.NCtx = 4096
 	ctxParams.NBatch = 2048
 
-	m.ModelContext = llama.InitFromModel(m.TextModel, ctxParams)
+	m.ModelContext, err = llama.InitFromModel(m.TextModel, ctxParams)
+	if err != nil {
+		return fmt.Errorf("unable to initialize model context: %w", err)
+	}
 
 	m.template = llama.ModelChatTemplate(m.TextModel, "")
 
-	m.Sampler = llama.NewSampler(m.TextModel, llama.DefaultSamplers)
+	m.Sampler = llama.NewSampler(m.TextModel, llama.DefaultSamplers, llama.DefaultSamplerParams())
 
 	mtmdCtxParams := mtmd.ContextParamsDefault()
-	if !*verbose {
-		mtmdCtxParams.Verbosity = llama.LogLevelContinue
+	m.ProjectorContext, err = mtmd.InitFromFile(m.ProjectorModelFilename, m.TextModel, mtmdCtxParams)
+	if err != nil {
+		return fmt.Errorf("unable to initialize projector context: %w", err)
 	}
-	m.ProjectorContext = mtmd.InitFromFile(m.ProjectorModelFilename, m.TextModel, mtmdCtxParams)
 
 	return nil
 }
@@ -129,5 +136,10 @@ func (m *VLM) Results(output mtmd.InputChunks) (string, error) {
 // Clear clears the context memory.
 func (m *VLM) Clear() {
 	llama.Synchronize(m.ModelContext)
-	llama.MemoryClear(llama.GetMemory(m.ModelContext), true)
+	mem, err := llama.GetMemory(m.ModelContext)
+	if err != nil {
+		fmt.Println("unable to get memory:", err)
+		return
+	}
+	llama.MemoryClear(mem, true)
 }

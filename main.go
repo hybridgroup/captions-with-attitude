@@ -18,7 +18,7 @@ func main() {
 	go startVideoCapture(*deviceID, stream)
 	go startCaptions(*modelPath, *projectorPath, *promptText)
 
-	fmt.Println("Capturing. Point your browser to", host)
+	fmt.Println("Capturing. Point your browser to", *host)
 
 	startWebServer(*host, stream, *promptText)
 }

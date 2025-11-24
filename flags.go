@@ -4,9 +4,11 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"os"
 )
 
 var (
+	libPath       *string
 	modelPath     *string
 	projectorPath *string
 	promptText    *string
@@ -25,6 +27,7 @@ captions-with-attitudes`)
 
 // handleFlags processes the command-line flags and validates them.
 func handleFlags() error {
+	libPath = flag.String("lib", "", "path to llama.cpp compiled library files")
 	modelPath = flag.String("model", "", "model file to use")
 	projectorPath = flag.String("projector", "", "projector file to use")
 	promptText = flag.String("p", "Give a very brief description of what is going on.", "prompt")
@@ -33,6 +36,14 @@ func handleFlags() error {
 	host = flag.String("host", "localhost:8080", "web server host:port")
 
 	flag.Parse()
+
+	if len(*libPath) == 0 && os.Getenv("YZMA_LIB") != "" {
+		*libPath = os.Getenv("YZMA_LIB")
+	}
+
+	if len(*libPath) == 0 {
+		return errors.New("missing lib flag or YZMA_LIB env var")
+	}
 
 	if len(*modelPath) == 0 || len(*projectorPath) == 0 {
 		return errors.New("missing model or projector flag")
