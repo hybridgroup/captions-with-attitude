@@ -32,12 +32,25 @@ Model: https://huggingface.co/ggml-org/Qwen3-VL-2B-Instruct-GGUF/blob/main/Qwen3
 
 Projector: https://huggingface.co/ggml-org/Qwen3-VL-2B-Instruct-GGUF/blob/main/mmproj-Qwen3-VL-2B-Instruct-Q8_0.gguf
 
+Install using the `yzma` CLI:
+
+```shell
+yzma model get -u https://huggingface.co/ggml-org/Qwen3-VL-2B-Instruct-GGUF/blob/main/Qwen3-VL-2B-Instruct-Q8_0.gguf
+yzma model get -u https://huggingface.co/ggml-org/Qwen3-VL-2B-Instruct-GGUF/blob/main/mmproj-Qwen3-VL-2B-Instruct-Q8_0.gguf
+```
+
 ***Qwen3-VL-8B-Abliterated-Caption-it-GGUF***
 
 Model: https://huggingface.co/mradermacher/Qwen3-VL-8B-Abliterated-Caption-it-GGUF/blob/main/Qwen3-VL-8B-Abliterated-Caption-it.Q4_K_M.gguf
 
 Projector: https://huggingface.co/mradermacher/Qwen3-VL-8B-Abliterated-Caption-it-GGUF/blob/main/Qwen3-VL-8B-Abliterated-Caption-it.mmproj-Q8_0.gguf
 
+Install using the `yzma` CLI:
+
+```shell
+yzma model get -u https://huggingface.co/mradermacher/Qwen3-VL-8B-Abliterated-Caption-it-GGUF/blob/main/Qwen3-VL-8B-Abliterated-Caption-it.Q4_K_M.gguf
+yzma model get -u https://huggingface.co/mradermacher/Qwen3-VL-8B-Abliterated-Caption-it-GGUF/blob/main/Qwen3-VL-8B-Abliterated-Caption-it.mmproj-Q8_0.gguf
+```
 
 ## Building
 
