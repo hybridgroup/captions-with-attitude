@@ -60,7 +60,7 @@ func nextCaption(vlm *VLM, prompt string) string {
 	messages := []llama.ChatMessage{llama.NewChatMessage("user", newPrompt)}
 	input := mtmd.NewInputText(vlm.ChatTemplate(messages, true), true, true)
 
-	bitmap, err := matToBitmap(img)
+	bitmap, err := imgToBitmap(img)
 	if err != nil {
 		fmt.Println("Error converting image to bitmap:", err)
 		return ""

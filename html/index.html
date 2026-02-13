@@ -80,7 +80,7 @@
 <body>
     <h1 style="margin-top: 0; margin-bottom: 12px; font-size: 2em; line-height: 1.1;">Captions With Attitude</h1>
     <div class="image-container">
-        <img src="http://localhost:8080/video" alt="MJPEG Stream">
+        <video id="webcam-video" autoplay playsinline style="max-width: 100vw; max-height: 60vh; border-radius: 8px; background: #222;"></video>
     </div>
     <div class="prompt-row" style="margin-top: 6px; margin-bottom: 0;">
         <div id="prompt-text" style="font-size: 1.7em; font-weight: 500; color: #333; text-align: center;">Loading prompt...</div>
@@ -166,13 +166,54 @@
             }
         });
 
-        setInterval(() => {
-            const img = document.querySelector('.image-container img');
-            if (img) {
-                const baseUrl = "http://localhost:8080/video";
-                img.src = baseUrl + "?t=" + Date.now();
+        // --- Webcam display and upload ---
+        async function startWebcam() {
+            const video = document.getElementById('webcam-video');
+            const canvas = document.createElement('canvas');
+            canvas.style.display = 'none';
+            document.body.appendChild(canvas);
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+
+                video.addEventListener('loadedmetadata', () => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                });
+
+                setInterval(() => {
+                    if (video.videoWidth === 0 || video.videoHeight === 0) return;
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    canvas.toBlob(async (blob) => {
+                        if (!blob) return;
+                        try {
+                            await fetch('http://localhost:8080/upload', {
+                                method: 'POST',
+                                body: blob,
+                                headers: {
+                                    'Content-Type': 'image/jpeg'
+                                }
+                            });
+                        } catch (err) {
+                            // Optionally handle upload error
+                        }
+                    }, 'image/jpeg', 0.85);
+                }, 500); // every 500ms
+            } catch (err) {
+                video.style.display = 'none';
+                const container = document.querySelector('.image-container');
+                const errorMsg = document.createElement('div');
+                errorMsg.textContent = 'Could not access webcam: ' + err.message;
+                errorMsg.style.color = 'red';
+                container.appendChild(errorMsg);
             }
-        }, 10000);
+        }
+        startWebcam();
     </script>
 </body>
 </html>

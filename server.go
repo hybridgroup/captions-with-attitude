@@ -1,14 +1,17 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"image"
+	_ "image/jpeg"
+	"io"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	_ "embed"
-
-	"github.com/hybridgroup/mjpeg"
 )
 
 // The HTML index page for the web server is embedded here.
@@ -16,10 +19,39 @@ import (
 //go:embed html/index.html
 var index string
 
+var (
+	img   image.Image
+	mutex sync.Mutex
+)
+
+func uploadHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Limit upload size to 5MB
+	r.Body = http.MaxBytesReader(w, r.Body, 5<<20)
+	data, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Failed to read image data", http.StatusBadRequest)
+		return
+	}
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	img, _, err = image.Decode(bytes.NewReader(data))
+	if err != nil {
+		http.Error(w, "Failed to decode image", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
 // startWebServer starts the web server. The server serves the MJPEG stream
 // and the caption text.
 // It also provides endpoints to set the tone and humor of the captions.
-func startWebServer(host string, stream *mjpeg.Stream, promptText string) {
+func startWebServer(host string, promptText string) {
 	mux := http.NewServeMux()
 
 	// Serve the index page
@@ -29,7 +61,8 @@ func startWebServer(host string, stream *mjpeg.Stream, promptText string) {
 	})
 
 	// Serve the MJPEG stream
-	mux.Handle("/video", stream)
+	//mux.Handle("/video", stream)
+	mux.HandleFunc("/upload", uploadHandler)
 
 	// Serve the latest caption
 	mux.HandleFunc("/caption", func(w http.ResponseWriter, r *http.Request) {

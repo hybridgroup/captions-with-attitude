@@ -2,76 +2,36 @@ package main
 
 import (
 	"errors"
-	"fmt"
-	"sync"
+	"image"
 	"unsafe"
 
-	"github.com/hybridgroup/mjpeg"
 	"github.com/hybridgroup/yzma/pkg/mtmd"
-	"gocv.io/x/gocv"
 )
 
-var (
-	webcam *gocv.VideoCapture
-	img    gocv.Mat
-	mutex  sync.Mutex
-)
-
-// startVideoCapture starts capturing video from the specified device ID
-// and streams it to the provided MJPEG stream.
-func startVideoCapture(deviceID string, stream *mjpeg.Stream) {
-	var err error
-	webcam, err = gocv.OpenVideoCapture(deviceID)
-	if err != nil {
-		fmt.Printf("Error opening capture device: %v\n", deviceID)
-		return
-	}
-	defer webcam.Close()
-
-	img = gocv.NewMat()
-	defer img.Close()
-
-	for {
-		captureFrame(deviceID, stream)
-	}
-}
-
-// captureFrame captures a single frame from the webcam and updates the MJPEG stream.
-func captureFrame(deviceID string, stream *mjpeg.Stream) {
-	mutex.Lock()
-	defer mutex.Unlock()
-
-	if ok := webcam.Read(&img); !ok {
-		fmt.Printf("Device closed: %v\n", deviceID)
-		return
-	}
-	if img.Empty() {
-		return
-	}
-
-	buf, _ := gocv.IMEncode(".jpg", img)
-	stream.UpdateJPEG(buf.GetBytes())
-	buf.Close()
-}
-
-// matToBitmap converts a gocv.Mat image to an mtmd.Bitmap.
-func matToBitmap(img gocv.Mat) (mtmd.Bitmap, error) {
-	if img.Empty() {
+func imgToBitmap(img image.Image) (mtmd.Bitmap, error) {
+	if img == nil {
 		return mtmd.Bitmap(0), errors.New("empty image")
 	}
 
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	rgb := gocv.NewMatWithSize(img.Rows(), img.Cols(), gocv.MatTypeCV8U)
-	defer rgb.Close()
+	bounds := img.Bounds()
+	width, height := bounds.Dx(), bounds.Dy()
+	rgb := make([]uint8, 0, width*height*3)
 
-	gocv.CvtColor(img, &rgb, gocv.ColorBGRToRGB)
-	ptr, err := rgb.DataPtrUint8()
-	if err != nil {
-		return mtmd.Bitmap(0), err
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+			r, g, b, _ := img.At(x, y).RGBA()
+			// Convert from 16-bit to 8-bit color
+			rgb = append(rgb, uint8(r>>8), uint8(g>>8), uint8(b>>8))
+		}
 	}
 
-	bitmap := mtmd.BitmapInit(uint32(img.Cols()), uint32(img.Rows()), uintptr(unsafe.Pointer(&ptr[0])))
+	bitmap := mtmd.BitmapInit(
+		uint32(width),
+		uint32(height),
+		uintptr(unsafe.Pointer(&rgb[0])),
+	)
 	return bitmap, nil
 }
