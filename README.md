@@ -28,28 +28,24 @@ You will need a Vision Language Model (VLM). Download the model and projector fi
 
 ***Qwen3-VL-2B-Instruct model***
 
-Model: https://huggingface.co/ggml-org/Qwen3-VL-2B-Instruct-GGUF/blob/main/Qwen3-VL-2B-Instruct-Q8_0.gguf
-
-Projector: https://huggingface.co/ggml-org/Qwen3-VL-2B-Instruct-GGUF/blob/main/mmproj-Qwen3-VL-2B-Instruct-Q8_0.gguf
+https://huggingface.co/bartowski/Qwen_Qwen3-VL-2B-Instruct-GGUF
 
 Install using the `yzma` CLI:
 
 ```shell
-yzma model get -u https://huggingface.co/ggml-org/Qwen3-VL-2B-Instruct-GGUF/blob/main/Qwen3-VL-2B-Instruct-Q8_0.gguf
-yzma model get -u https://huggingface.co/ggml-org/Qwen3-VL-2B-Instruct-GGUF/blob/main/mmproj-Qwen3-VL-2B-Instruct-Q8_0.gguf
+yzma model get -u https://huggingface.co/bartowski/Qwen_Qwen3-VL-2B-Instruct-GGUF/resolve/main/Qwen_Qwen3-VL-2B-Instruct-Q4_K_M.gguf
+yzma model get -u https://huggingface.co/bartowski/Qwen_Qwen3-VL-2B-Instruct-GGUF/resolve/main/mmproj-Qwen_Qwen3-VL-2B-Instruct-f16.gguf
 ```
 
-***Qwen3-VL-8B-Abliterated-Caption-it-GGUF***
+***LFM2.5-VL-1.6B-absolute-heresy-MPOA***
 
-Model: https://huggingface.co/mradermacher/Qwen3-VL-8B-Abliterated-Caption-it-GGUF/blob/main/Qwen3-VL-8B-Abliterated-Caption-it.Q4_K_M.gguf
-
-Projector: https://huggingface.co/mradermacher/Qwen3-VL-8B-Abliterated-Caption-it-GGUF/blob/main/Qwen3-VL-8B-Abliterated-Caption-it.mmproj-Q8_0.gguf
+https://huggingface.co/mradermacher/LFM2.5-VL-1.6B-absolute-heresy-MPOA-i1-GGUF
 
 Install using the `yzma` CLI:
 
 ```shell
-yzma model get -u https://huggingface.co/mradermacher/Qwen3-VL-8B-Abliterated-Caption-it-GGUF/blob/main/Qwen3-VL-8B-Abliterated-Caption-it.Q4_K_M.gguf
-yzma model get -u https://huggingface.co/mradermacher/Qwen3-VL-8B-Abliterated-Caption-it-GGUF/blob/main/Qwen3-VL-8B-Abliterated-Caption-it.mmproj-Q8_0.gguf
+yzma model get -u https://huggingface.co/mradermacher/LFM2.5-VL-1.6B-absolute-heresy-MPOA-i1-GGUF/resolve/main/LFM2.5-VL-1.6B-absolute-heresy-MPOA.i1-Q4_K_M.gguf
+yzma model get -u https://huggingface.co/mradermacher/LFM2.5-VL-1.6B-absolute-heresy-MPOA-GGUF/resolve/main/LFM2.5-VL-1.6B-absolute-heresy-MPOA.mmproj-Q8_0.gguf
 ```
 
 ## Building
@@ -83,7 +79,7 @@ captions-with-attitudes
 ### Example
 
 ```shell
-./captions-with-attitude -model ~/models/Qwen3-VL-8B-Abliterated-Caption-it.Q4_K_M.gguf -projector ~/models/Qwen3-VL-8B-Abliterated-Caption-it.mmproj-Q8_0.gguf -p "Describe the scene in the style of William Shakespeare."
+./captions-with-attitude -model ~/models/LFM2.5-VL-1.6B-absolute-heresy-MPOA.mmproj-Q8_0.gguf -projector ~/models/LFM2.5-VL-1.6B-absolute-heresy-MPOA.i1-Q4_K_M.gguf -p "Describe the scene in the style of William Shakespeare."
 ```
 
 Now open your web browser pointed to http://localhost:8080/
