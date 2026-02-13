@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"unsafe"
 
 	"github.com/hybridgroup/yzma/pkg/llama"
 	"github.com/hybridgroup/yzma/pkg/mtmd"
@@ -98,15 +97,6 @@ func (m *VLM) Results(output mtmd.InputChunks) (string, error) {
 		return "", errors.New("unable to evaluate chunks")
 	}
 
-	var sz int32 = 1
-	batch := llama.BatchInit(1, 0, 1)
-	defer llama.BatchFree(batch)
-
-	batch.NSeqId = &sz
-	batch.NTokens = 1
-	seqs := unsafe.SliceData([]llama.SeqId{0})
-	batch.SeqId = &seqs
-
 	vocab := llama.ModelGetVocab(m.TextModel)
 	results := ""
 
@@ -121,7 +111,7 @@ func (m *VLM) Results(output mtmd.InputChunks) (string, error) {
 		len := llama.TokenToPiece(vocab, token, buf, 0, true)
 		results += string(buf[:len])
 
-		batch.Token = &token
+		batch := llama.BatchGetOne([]llama.Token{token})
 		batch.Pos = &n
 
 		llama.Decode(m.ModelContext, batch)

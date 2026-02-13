@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 	"unsafe"
@@ -55,6 +56,10 @@ func captureFrame(deviceID string, stream *mjpeg.Stream) {
 
 // matToBitmap converts a gocv.Mat image to an mtmd.Bitmap.
 func matToBitmap(img gocv.Mat) (mtmd.Bitmap, error) {
+	if img.Empty() {
+		return mtmd.Bitmap(0), errors.New("empty image")
+	}
+
 	mutex.Lock()
 	defer mutex.Unlock()
 
