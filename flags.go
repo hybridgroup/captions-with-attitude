@@ -1,10 +1,10 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 var (
@@ -44,7 +44,12 @@ func handleFlags() error {
 	}
 
 	if len(*libPath) == 0 {
-		return errors.New("missing lib flag or YZMA_LIB env var")
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			*libPath = "./yzma"
+		} else {
+			*libPath = filepath.Join(homeDir, "yzma")
+		}
 	}
 
 	return nil

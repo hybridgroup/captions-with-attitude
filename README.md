@@ -13,8 +13,7 @@ It uses [yzma](https://github.com/hybridgroup/yzma) to perform local inference u
 If you do not have yzma or the needed models already installed, you can just run this command and the application itself will prompt you for installation:
 
 ```
-$ mkdir -p llama
-$ go run . -lib ./llama
+$ go run .
 yzma is not installed.
 Do you want to install yzma now? (y/n): y
 installing llama.cpp version b8038 to ./llama

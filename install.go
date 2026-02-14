@@ -10,6 +10,22 @@ import (
 )
 
 func checkInstall() {
+	if _, err := os.Stat(*libPath); os.IsNotExist(err) {
+		fmt.Println("no llama.cpp library directory for yzma.")
+		fmt.Print("Do you want to create '" + *libPath + "'? (y/n): ")
+		var answer string
+		fmt.Scanln(&answer)
+		if answer == "y" || answer == "Y" {
+			if err := os.Mkdir(*libPath, 0755); err != nil {
+				fmt.Println("failed to create llama directory:", err.Error())
+				os.Exit(1)
+			}
+		} else {
+			fmt.Println("Exiting.")
+			os.Exit(0)
+		}
+	}
+
 	if !download.AlreadyInstalled(*libPath) {
 		fmt.Println("yzma is not installed.")
 		fmt.Print("Do you want to install yzma now? (y/n): ")
