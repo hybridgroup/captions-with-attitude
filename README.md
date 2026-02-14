@@ -8,13 +8,33 @@ It uses [yzma](https://github.com/hybridgroup/yzma) to perform local inference u
 
 ## Installation
 
-### yzma
+### Self install
+
+If you do not have yzma or the needed models already installed, you can just run this command and the application itself will prompt you for installation:
+
+```
+$ mkdir -p llama
+$ go run . -lib ./llama
+yzma is not installed.
+Do you want to install yzma now? (y/n): y
+installing llama.cpp version b8038 to ./llama
+downloading llama-b8038-bin-ubuntu-x64.tar.gz... 23 MiB of 23 MiB (8.72 MiB/s)
+yzma installed successfully.
+No model or projector specified, using default models (Qwen3-VL-2B-Instruct-Q4_K_M)
+...
+```
+
+Now open your web browser pointed to http://localhost:8080/ and activate your webcam.
+
+### Full install
+
+#### yzma
 
 You must install yzma and llama.cpp to run this program.
 
 See https://github.com/hybridgroup/yzma/blob/main/INSTALL.md
 
-### Models
+#### Models
 
 You will need a Vision Language Model (VLM). Download the model and projector files from Hugging Face in `.gguf` format.
 

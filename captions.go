@@ -45,7 +45,9 @@ func startCaptions(modelFile, projectorFile, prompt string) {
 
 	for {
 		caption = nextCaption(vlm, prompt)
-		fmt.Println("Caption:", caption)
+		if caption != "" {
+			fmt.Println("Caption:", caption)
+		}
 
 		time.Sleep(3 * time.Second)
 	}
@@ -54,18 +56,23 @@ func startCaptions(modelFile, projectorFile, prompt string) {
 // nextCaption generates the next caption using the VLM
 // based on the current video frame and prompt.
 func nextCaption(vlm *VLM, prompt string) string {
-	newPrompt := prompt + promptStyle() + mtmd.DefaultMarker()
-	fmt.Println(newPrompt)
-
-	messages := []llama.ChatMessage{llama.NewChatMessage("user", newPrompt)}
-	input := mtmd.NewInputText(vlm.ChatTemplate(messages, true), true, true)
-
 	bitmap, err := imgToBitmap(img)
 	if err != nil {
-		fmt.Println("Error converting image to bitmap:", err)
+		switch err.Error() {
+		case "empty image":
+			fmt.Println("Open your browser to", *host, "and activate your camera to start generating captions.")
+		default:
+			fmt.Println("Error converting image to bitmap:", err)
+		}
 		return ""
 	}
 	defer mtmd.BitmapFree(bitmap)
+
+	newPrompt := prompt + promptStyle()
+	fmt.Println(newPrompt)
+
+	messages := []llama.ChatMessage{llama.NewChatMessage("user", newPrompt+mtmd.DefaultMarker())}
+	input := mtmd.NewInputText(vlm.ChatTemplate(messages, true), true, true)
 
 	output := mtmd.InputChunksInit()
 	defer mtmd.InputChunksFree(output)

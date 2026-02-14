@@ -11,6 +11,9 @@ func main() {
 		os.Exit(0)
 	}
 
+	checkInstall()
+	checkModels()
+
 	go startCaptions(*modelPath, *projectorPath, *promptText)
 
 	fmt.Println("Capturing. Point your browser to", *host)

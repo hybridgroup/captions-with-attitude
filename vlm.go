@@ -46,7 +46,7 @@ func (m *VLM) Init() error {
 	var err error
 	m.TextModel, err = llama.ModelLoadFromFile(m.TextModelFilename, llama.ModelDefaultParams())
 	if err != nil {
-		return fmt.Errorf("unable to load text model: %w", err)
+		return fmt.Errorf("unable to load model: %w", err)
 	}
 
 	ctxParams := llama.ContextDefaultParams()
@@ -73,7 +73,7 @@ func (m *VLM) Init() error {
 
 // ChatTemplate applies the model's chat template to the given messages.
 func (m *VLM) ChatTemplate(messages []llama.ChatMessage, add bool) string {
-	buf := make([]byte, 1024)
+	buf := make([]byte, 8192)
 	len := llama.ChatApplyTemplate(m.template, messages, add, buf)
 	result := string(buf[:len])
 
