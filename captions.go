@@ -7,6 +7,7 @@ import (
 
 	"github.com/hybridgroup/yzma/pkg/llama"
 	"github.com/hybridgroup/yzma/pkg/mtmd"
+	"github.com/hybridgroup/yzma/pkg/vlm"
 )
 
 var (
@@ -36,7 +37,7 @@ func startCaptions(modelFile, projectorFile, prompt string) {
 	llama.Init()
 	defer llama.BackendFree()
 
-	vlm := NewVLM(modelFile, projectorFile)
+	vlm := vlm.NewVLM(modelFile, projectorFile)
 	if err := vlm.Init(); err != nil {
 		fmt.Println("unable to initialize VLM:", err)
 		os.Exit(1)
@@ -55,7 +56,7 @@ func startCaptions(modelFile, projectorFile, prompt string) {
 
 // nextCaption generates the next caption using the VLM
 // based on the current video frame and prompt.
-func nextCaption(vlm *VLM, prompt string) string {
+func nextCaption(vlm *vlm.VLM, prompt string) string {
 	bitmap, err := imgToBitmap(img)
 	if err != nil {
 		switch err.Error() {
@@ -77,7 +78,7 @@ func nextCaption(vlm *VLM, prompt string) string {
 	output := mtmd.InputChunksInit()
 	defer mtmd.InputChunksFree(output)
 
-	if err := vlm.Tokenize(input, bitmap, output); err != nil {
+	if err := vlm.Tokenize(input, []mtmd.Bitmap{bitmap}, output); err != nil {
 		fmt.Println("Error tokenizing input:", err)
 		return ""
 	}

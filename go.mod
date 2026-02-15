@@ -2,7 +2,7 @@ module github.com/hybridgroup/captions-with-attitude
 
 go 1.25.0
 
-require github.com/hybridgroup/yzma v1.9.0
+require github.com/hybridgroup/yzma v1.9.1-0.20260215142728-daaa95a6ded4
 
 require (
 	cloud.google.com/go v0.110.0 // indirect
