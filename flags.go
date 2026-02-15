@@ -35,7 +35,7 @@ func handleFlags() error {
 	verbose = flag.Bool("v", false, "verbose logging")
 	deviceID = flag.String("device", "0", "camera device ID")
 	host = flag.String("host", "localhost:8080", "web server host:port")
-	processor = flag.String("processor", "cpu", "processor to use (cpu, cuda, metal, vulkan)")
+	processor = flag.String("processor", "", "processor to use (cpu, cuda, metal, vulkan)")
 
 	flag.Parse()
 

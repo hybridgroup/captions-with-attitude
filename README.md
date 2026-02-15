@@ -12,6 +12,8 @@ It uses [yzma](https://github.com/hybridgroup/yzma) to perform local inference u
 
 If you do not have yzma or the needed models already installed, you can just run this command and the application itself will prompt you for installation:
 
+The self-install will detect if you have CUDA installed on your system, and use the appropriate hardware accelerated version if available.
+
 ```
 $ go run .
 yzma is not installed.
