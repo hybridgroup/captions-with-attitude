@@ -8,6 +8,8 @@ import (
 	"github.com/hybridgroup/yzma/pkg/mtmd"
 )
 
+// imgToBitmap converts an image.Image to an mtmd.Bitmap.
+// It locks a mutex to ensure thread safety when accessing the image data.
 func imgToBitmap(img image.Image) (mtmd.Bitmap, error) {
 	if img == nil {
 		return mtmd.Bitmap(0), errors.New("empty image")
